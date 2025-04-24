@@ -34,7 +34,7 @@ jobs:
 
       - name: Package with PyInstaller
         run: |
-          pyinstaller --onefile --windowed src/macro.py
+          pyinstaller --onefile --windowed macro.py
         # --onefile makes a single binary; --windowed wraps as .app 
 
       - name: List dist contents
