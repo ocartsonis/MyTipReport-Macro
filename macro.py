@@ -32,32 +32,62 @@ import time
 is_true = True
 button1_bool = True
 button2_bool = True
+button3_bool = True
+
 start_time = time.time()
+button1_index = 0
+min_distance = 10 #minimum pixel distance the buttons must have from each other in order to prevent duplication illusions
+
+cycle_time = 3 #time it takes loop to run once in seconds
 
 while is_true:
     current_time = time.time()
     if keyboard.is_pressed('q'):
         is_true = False
     
-    if current_time-start_time >= 2 and button1_bool:
-        button1_bool = False
+    if current_time-start_time >= (cycle_time/3) and button1_bool:
         button2_bool = True
+        button1_bool = False
         try:
-            button1_location = pyautogui.locateOnScreen('google docs.png', confidence= 0.8)
+            button1_locations = pyautogui.locateAllOnScreen('Active Button.png', confidence= 0.8)
+            button1_locations_list = list(button1_locations)
+            button1_locations_list.sort(key=lambda box: box.top)
+            filtered_locations_list = []
+            top_abs = 0
+            for button1_location_list in button1_locations_list:
+                if abs(button1_location_list[1]-top_abs) > min_distance:
+                    top_abs = button1_location_list[1]
+                    filtered_locations_list.append(button1_location_list)
+            #print(pyautogui.center(button1_locations_list[0]), pyautogui.center(button1_locations_list[1]))
+            print(filtered_locations_list)
+            button1_location = filtered_locations_list[button1_index]
             button1_center = pyautogui.center(button1_location)
+            pyautogui.moveTo(button1_center)
             pyautogui.click(button1_center)
 
         except pyautogui.ImageNotFoundException:
             print("Button 1 Not Found")
 
-    if current_time-start_time >= 4 and button2_bool:
-        button1_bool = True
+    if current_time-start_time >= (2*(cycle_time/3)) and button2_bool:
+        button3_bool = True
         button2_bool = False
-        start_time = time.time()
         try:
-            button2_location = pyautogui.locateOnScreen('back arrow.png', confidence= 0.8)
+            button2_location = pyautogui.locateOnScreen('Submit Button.png', confidence= 0.8)
             button2_center = pyautogui.center(button2_location)
             pyautogui.click(button2_center)
 
         except pyautogui.ImageNotFoundException:
+            button1_index += 1
             print("Button 2 Not Found")
+    
+    if current_time-start_time >= cycle_time and button3_bool:
+        button1_bool = True
+        button3_bool = False
+        start_time = time.time()
+        try:
+            button3_location = pyautogui.locateOnScreen('OK Button.png', confidence= 0.8)
+            button3_center = pyautogui.center(button3_location)
+            pyautogui.click(button3_center)
+
+        except pyautogui.ImageNotFoundException:
+            print("Button 3 Not Found")

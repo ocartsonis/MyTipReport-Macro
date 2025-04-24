@@ -1,0 +1,49 @@
+name: Build macOS Executable
+
+# Trigger on push to main branch or manual dispatch
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-macos:
+    # Use macOS runner so PyInstaller bundles natively for macOS
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        # Ensures your repo is available in the runner workspace :contentReference[oaicite:1]{index=1}
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+        # Installs specified Python into PATH 
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+        # Installs your app’s libraries before packaging :contentReference[oaicite:2]{index=2}
+
+      - name: Install PyInstaller
+        run: pip install pyinstaller
+        # Adds PyInstaller for bundling 
+
+      - name: Package with PyInstaller
+        run: |
+          pyinstaller --onefile --windowed src/macro.py
+        # --onefile makes a single binary; --windowed wraps as .app 
+
+      - name: List dist contents
+        run: ls -R dist
+        # Verify .app bundle is in dist/ :contentReference[oaicite:3]{index=3}
+
+      - name: Upload macOS .app artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-app
+          path: dist/*.app
+        # Saves the .app bundle for download from the Actions UI 
