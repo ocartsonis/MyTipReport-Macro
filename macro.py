@@ -49,8 +49,16 @@ while is_true:
         button2_bool = True
         button1_bool = False
         try:
-            button1_locations = pyautogui.locateAllOnScreen('Active Button.png', confidence= 0.8)
-            button1_locations_list = list(button1_locations)
+            button1_locations_expired = list(pyautogui.locateAllOnScreen('Expired Button.png', confidence= 0.85))
+        except pyscreeze.ImageNotFoundException:
+            button1_locations_expired = []
+        try:
+            button1_locations_active = list(pyautogui.locateAllOnScreen('Active Button.png', confidence= 0.85))
+        except pyscreeze.ImageNotFoundException:
+            button1_locations_active = []
+        try:
+            
+            button1_locations_list = button1_locations_expired + button1_locations_active
             button1_locations_list.sort(key=lambda box: box.top)
             filtered_locations_list = []
             top_abs = 0
@@ -65,14 +73,16 @@ while is_true:
             pyautogui.moveTo(button1_center)
             pyautogui.click(button1_center)
 
-        except pyautogui.ImageNotFoundException:
-            print("Button 1 Not Found")
+        except (pyautogui.ImageNotFoundException, pyscreeze.ImageNotFoundException, IndexError) as e:
+            print("Button 1 Not Found", e)
+            button2_bool = False
+            button1_bool = True
 
     if current_time-start_time >= (2*(cycle_time/3)) and button2_bool:
         button3_bool = True
         button2_bool = False
         try:
-            button2_location = pyautogui.locateOnScreen('Submit Button.png', confidence= 0.8)
+            button2_location = pyautogui.locateOnScreen('Submit Button.png', confidence= 0.85)
             button2_center = pyautogui.center(button2_location)
             pyautogui.click(button2_center)
 
@@ -85,7 +95,7 @@ while is_true:
         button3_bool = False
         start_time = time.time()
         try:
-            button3_location = pyautogui.locateOnScreen('OK Button.png', confidence= 0.8)
+            button3_location = pyautogui.locateOnScreen('OK Button.png', confidence= 0.85)
             button3_center = pyautogui.center(button3_location)
             pyautogui.click(button3_center)
 
